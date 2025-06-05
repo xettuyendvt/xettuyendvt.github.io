@@ -1,9 +1,93 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="vi">
 <head>
   <meta charset="UTF-8">
-  <title>Redirecting...</title>
+  <title>Đang chuyển hướng...</title>
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <style>
+    body {
+      font-family: "Segoe UI", Roboto, sans-serif;
+      background: linear-gradient(135deg, #f2f4f8, #e6ebf5);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      flex-direction: column;
+      height: 100vh;
+      margin: 0;
+      padding: 20px;
+      color: #333;
+      text-align: center;
+    }
+
+    .container {
+      background: white;
+      padding: 30px;
+      border-radius: 16px;
+      box-shadow: 0 8px 20px rgba(0,0,0,0.1);
+      max-width: 500px;
+      width: 100%;
+    }
+
+    h1 {
+      font-size: 1.5rem;
+      margin-bottom: 10px;
+    }
+
+    p {
+      margin: 10px 0;
+      font-size: 1rem;
+    }
+
+    a {
+      display: inline-block;
+      margin-top: 10px;
+      color: #007BFF;
+      text-decoration: none;
+      font-weight: bold;
+    }
+
+    a:hover {
+      text-decoration: underline;
+    }
+
+    .link-list a {
+      display: block;
+      margin: 5px 0;
+      word-break: break-all;
+    }
+
+    .loader {
+      margin: 20px auto;
+      width: 40px;
+      height: 40px;
+      border: 4px solid #ccc;
+      border-top: 4px solid #007BFF;
+      border-radius: 50%;
+      animation: spin 1s linear infinite;
+    }
+
+    @keyframes spin {
+      to { transform: rotate(360deg); }
+    }
+
+    .small-note {
+      font-size: 0.875rem;
+      color: #666;
+      margin-top: 15px;
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <h1>Đang kiểm tra liên kết...</h1>
+    <div class="loader"></div>
+    <p id="status">Vui lòng chờ trong giây lát.</p>
+    <div id="manual-links" class="link-list">
+      <p>Nếu không được chuyển hướng, bạn có thể nhấn vào các liên kết bên dưới:</p>
+    </div>
+    <p class="small-note">Trang sẽ tự động thử lại sau vài giây nếu chưa có liên kết hoạt động.</p>
+  </div>
+
   <script>
     const urls = [
       "https://appearing-trusted-formerly-informed.trycloudflare.com"
@@ -11,8 +95,14 @@
 
     async function isUrlAlive(url) {
       try {
-        const response = await fetch(url, { method: 'HEAD', mode: 'no-cors' });
-        // no-cors không cho phép kiểm tra chính xác status, nên nếu không lỗi thì ta xem là sống
+        const controller = new AbortController();
+        const timeoutId = setTimeout(() => controller.abort(), 5000); // timeout 5s
+        const res = await fetch(url, {
+          method: 'HEAD',
+          mode: 'no-cors',
+          signal: controller.signal
+        });
+        clearTimeout(timeoutId);
         return true;
       } catch (e) {
         return false;
@@ -20,24 +110,36 @@
     }
 
     async function tryRedirect() {
+      const manualLinks = document.getElementById("manual-links");
+      const status = document.getElementById("status");
+      let redirected = false;
+
       for (const url of urls) {
+        // Hiển thị link để người dùng tự bấm
+        const a = document.createElement("a");
+        a.href = url;
+        a.innerText = url;
+        a.target = "_blank";
+        manualLinks.appendChild(a);
+
         const alive = await isUrlAlive(url);
-        if (alive) {
-          window.location.href = url;
+        if (alive && !redirected) {
+          status.innerText = `Đang chuyển hướng tới ${url}...`;
+          redirected = true;
+          setTimeout(() => {
+            window.location.href = url;
+          }, 500); // cho người dùng thấy status trước khi chuyển
           return;
         }
       }
 
-      // Nếu không có link nào sống, chờ 10s rồi thử lại
-      setTimeout(() => {
-        location.reload();
-      }, 10000);
+      if (!redirected) {
+        status.innerText = "Không có liên kết nào hoạt động. Sẽ thử lại sau 10 giây...";
+        setTimeout(() => location.reload(), 10000);
+      }
     }
 
     window.onload = tryRedirect;
   </script>
-</head>
-<body>
-  <p>Đang kiểm tra link chuyển hướng... Nếu không tự chuyển, vui lòng nhấn vào link mới (khi sẵn sàng).</p>
 </body>
 </html>
