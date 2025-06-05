@@ -1,17 +1,43 @@
-﻿<!DOCTYPE html>
+<!DOCTYPE html>
 <html lang="en">
 <head>
   <meta charset="UTF-8">
-  <meta http-equiv="refresh" content="0; URL='https://semester-wanting-silence-bedding.trycloudflare.com'">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Redirecting...</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <script>
-    setTimeout(function() {
-      window.location.href = "https://semester-wanting-silence-bedding.trycloudflare.com";
-    }, 100);
+    const urls = [
+      "https://appearing-trusted-formerly-informed.trycloudflare.com"
+    ];
+
+    async function isUrlAlive(url) {
+      try {
+        const response = await fetch(url, { method: 'HEAD', mode: 'no-cors' });
+        // no-cors không cho phép kiểm tra chính xác status, nên nếu không lỗi thì ta xem là sống
+        return true;
+      } catch (e) {
+        return false;
+      }
+    }
+
+    async function tryRedirect() {
+      for (const url of urls) {
+        const alive = await isUrlAlive(url);
+        if (alive) {
+          window.location.href = url;
+          return;
+        }
+      }
+
+      // Nếu không có link nào sống, chờ 10s rồi thử lại
+      setTimeout(() => {
+        location.reload();
+      }, 10000);
+    }
+
+    window.onload = tryRedirect;
   </script>
 </head>
 <body>
-  <p>Đang chuyển hướng... Nếu bạn không được chuyển hướng tự động, vui lòng nhấn vào <a href="https://reserved-coordinator-phentermine-intervals.trycloudflare.com">đây</a>.</p>
+  <p>Đang kiểm tra link chuyển hướng... Nếu không tự chuyển, vui lòng nhấn vào link mới (khi sẵn sàng).</p>
 </body>
 </html>
