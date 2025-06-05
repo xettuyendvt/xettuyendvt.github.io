@@ -118,13 +118,13 @@
         // Hiển thị link để người dùng tự bấm
         const a = document.createElement("a");
         a.href = url;
-        a.innerText = url;
+        a.innerText = "Tại đây";
         a.target = "_blank";
         manualLinks.appendChild(a);
 
         const alive = await isUrlAlive(url);
         if (alive && !redirected) {
-          status.innerText = `Đang chuyển hướng tới ${url}...`;
+          status.innerText = `Đang chuyển hướng...`;
           redirected = true;
           setTimeout(() => {
             window.location.href = url;
