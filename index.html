@@ -4,6 +4,12 @@
   <meta charset="UTF-8">
   <title>Đang chuyển hướng...</title>
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  
+  <!-- Thêm meta tags để ngăn cache -->
+  <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
+  <meta http-equiv="Pragma" content="no-cache">
+  <meta http-equiv="Expires" content="0">
+  
   <style>
     body {
       font-family: "Segoe UI", Roboto, sans-serif;
@@ -89,17 +95,29 @@
   </div>
 
   <script>
+    // Xóa cache khi trang load
+    if ('caches' in window) {
+      caches.keys().then(function(names) {
+        for (let name of names) caches.delete(name);
+      });
+    }
+
     const urls = [
-      "https://hansen-counts-specifics-amounts.trycloudflare.com"
+      "https://types-figured-forms-mills.trycloudflare.com"
     ];
 
     async function isUrlAlive(url) {
       try {
         const controller = new AbortController();
-        const timeoutId = setTimeout(() => controller.abort(), 5000); // timeout 5s
-        const res = await fetch(url, {
+        const timeoutId = setTimeout(() => controller.abort(), 5000);
+        
+        // Thêm timestamp để tránh cache
+        const urlWithTimestamp = url + (url.includes('?') ? '&' : '?') + '_t=' + Date.now();
+        
+        const res = await fetch(urlWithTimestamp, {
           method: 'HEAD',
           mode: 'no-cors',
+          cache: 'no-store', // Không sử dụng cache
           signal: controller.signal
         });
         clearTimeout(timeoutId);
@@ -128,14 +146,14 @@
           redirected = true;
           setTimeout(() => {
             window.location.href = url;
-          }, 500); // cho người dùng thấy status trước khi chuyển
+          }, 500);
           return;
         }
       }
 
       if (!redirected) {
         status.innerText = "Không có liên kết nào hoạt động. Sẽ thử lại sau 10 giây...";
-        setTimeout(() => location.reload(), 10000);
+        setTimeout(() => location.reload(true), 10000); // true = force reload từ server
       }
     }
 
@@ -143,13 +161,4 @@
   </script>
 </body>
 </html>
-
-
-
-
-
-
-
-
-
 
